@@ -6,14 +6,14 @@
 <title>SanPrix - Personal Brand</title>
 
 <style>
-} BLACK
+} 
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: 'Poppins', sans-serif;
 }
 
-body {
+body {black}
     background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
     color: white;
 }
