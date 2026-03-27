@@ -5,140 +5,235 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sanprix Store</title>
 
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:sans-serif;}
-body{background:#f5f5f5;}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
-/* NAV */
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
+body{background:#fff;color:#111;}
+
+/* NAVBAR */
 nav{
-display:flex;justify-content:space-between;
-padding:15px;background:white;
-box-shadow:0 2px 5px rgba(0,0,0,0.1);
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 20px;
+border-bottom:1px solid #eee;
+}
+
+.logo{font-weight:700;font-size:20px;}
+
+.icons{
+display:flex;
+gap:15px;
 }
 
 /* HERO */
 .hero{
-height:200px;
-background:#000;color:white;
-display:flex;flex-direction:column;
-justify-content:center;align-items:center;
+height:90vh;
+background:url("bg.jpg") center/cover no-repeat;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+color:white;
+text-align:center;
+}
+
+.hero h1{
+font-size:32px;
+margin-bottom:10px;
+}
+
+.hero button{
+padding:10px 20px;
+border:1px solid white;
+background:transparent;
+color:white;
+cursor:pointer;
 }
 
 /* PRODUCTS */
+.section-title{
+padding:20px;
+font-weight:600;
+}
+
 .grid{
 display:grid;
 grid-template-columns:repeat(2,1fr);
-gap:15px;padding:20px;
+gap:15px;
+padding:20px;
 }
 
 .card{
-background:white;padding:10px;
-border-radius:10px;text-align:center;
+background:#fafafa;
+border-radius:10px;
+overflow:hidden;
 }
 
-button{
-padding:8px 12px;margin-top:5px;
-border:none;background:black;color:white;
-cursor:pointer;
+.card img{
+width:100%;
+height:200px;
+object-fit:cover;
+}
+
+.card h4{
+padding:10px;
+font-size:14px;
+}
+
+.price{
+padding:0 10px;
+font-size:13px;
+color:#666;
+}
+
+.card button{
+margin:10px;
+padding:8px;
+background:black;
+color:white;
+border:none;
+width:90%;
 }
 
 /* CART */
 .cart{
-background:white;margin:20px;padding:15px;
-border-radius:10px;
+padding:20px;
+border-top:1px solid #eee;
+text-align:center;
+}
+
+.cart button{
+margin:5px;
+padding:10px;
+border:none;
+background:black;
+color:white;
 }
 
 /* ADMIN */
 .admin{
-background:#222;color:white;
-padding:15px;margin:20px;
-border-radius:10px;
+padding:20px;
+background:#f5f5f5;
 }
 
 input{
-padding:8px;margin:5px;width:100%;
+width:100%;
+padding:10px;
+margin:5px 0;
+border:1px solid #ddd;
+}
+
+/* FOOTER */
+footer{
+padding:20px;
+text-align:center;
+font-size:12px;
+color:#777;
+}
+
+/* MOBILE */
+@media(max-width:600px){
+.grid{grid-template-columns:1fr;}
+.hero h1{font-size:24px;}
 }
 </style>
 </head>
 
 <body>
 
+<!-- NAV -->
 <nav>
-<div>Sanprix Store</div>
+<div class="logo">Sanprix</div>
+<div class="icons">🛒 👤</div>
 </nav>
 
+<!-- HERO -->
 <div class="hero">
-<h2>Shop Now</h2>
+<h1>Browse our latest products</h1>
+<button onclick="scrollToProducts()">Shop all</button>
 </div>
 
 <!-- PRODUCTS -->
-<div class="grid" id="productList"></div>
+<h3 class="section-title">Products</h3>
+<div class="grid" id="products"></div>
 
 <!-- CART -->
 <div class="cart">
-<h3>Total: ₹ <span id="total">0</span></h3>
-
-<button onclick="payUPI()">Pay with UPI</button>
-<button onclick="orderWhatsApp()">Order on WhatsApp</button>
+<h3>Total ₹ <span id="total">0</span></h3>
+<button onclick="pay()">Pay with UPI</button>
+<button onclick="whatsapp()">Order WhatsApp</button>
 </div>
 
-<!-- ADMIN PANEL -->
+<!-- ADMIN -->
 <div class="admin">
-<h3>Admin Panel</h3>
-
-<input type="text" id="name" placeholder="Product Name">
-<input type="number" id="price" placeholder="Price">
-
-<button onclick="addProduct()">Add Product</button>
+<h3>Add Product</h3>
+<input id="name" placeholder="Product name">
+<input id="price" placeholder="Price">
+<input id="img" placeholder="Image link">
+<button onclick="add()">Add Product</button>
 </div>
+
+<!-- FOOTER -->
+<footer>
+© 2026 Sanprix | Contact: 9313233801 | Instagram: prem_8155
+</footer>
 
 <script>
-let total = 0;
-let products = JSON.parse(localStorage.getItem("products")) || [
-{name:"Black T-shirt", price:499},
-{name:"White T-shirt", price:599}
+let total=0;
+
+let data=JSON.parse(localStorage.getItem("data"))||[
+{name:"Black T-shirt",price:499,img:"https://source.unsplash.com/400x400/?black-tshirt"},
+{name:"White T-shirt",price:599,img:"https://source.unsplash.com/400x400/?white-tshirt"},
+{name:"Stylish Shirt",price:799,img:"https://source.unsplash.com/400x400/?fashion-shirt"}
 ];
 
-function showProducts(){
-let html = "";
-products.forEach((p,i)=>{
-html += `
+function show(){
+let html="";
+data.forEach(p=>{
+html+=`
 <div class="card">
-<p>${p.name}</p>
-<p>₹${p.price}</p>
-<button onclick="addToCart(${p.price})">Add</button>
+<img src="${p.img}">
+<h4>${p.name}</h4>
+<p class="price">₹${p.price}</p>
+<button onclick="addCart(${p.price})">Add to cart</button>
 </div>`;
 });
-document.getElementById("productList").innerHTML = html;
+document.getElementById("products").innerHTML=html;
 }
 
-function addToCart(price){
-total += price;
-document.getElementById("total").innerText = total;
+function addCart(p){
+total+=p;
+document.getElementById("total").innerText=total;
 }
 
-function payUPI(){
-let upi = "upi://pay?pa=pkchaudhary8585-5@oksbi&pn=Sanprix&am="+total+"&cu=INR";
-window.location.href = upi;
+function pay(){
+window.location.href="upi://pay?pa=pkchaudhary8585-5@oksbi&pn=Sanprix&am="+total+"&cu=INR";
 }
 
-function orderWhatsApp(){
-let msg = "Order Total = ₹"+total;
-window.open("https://wa.me/919313233801?text="+encodeURIComponent(msg));
+function whatsapp(){
+window.open("https://wa.me/919313233801?text=Order ₹"+total);
 }
 
-function addProduct(){
-let name = document.getElementById("name").value;
-let price = document.getElementById("price").value;
+function add(){
+let n=document.getElementById("name").value;
+let p=document.getElementById("price").value;
+let i=document.getElementById("img").value;
 
-if(name && price){
-products.push({name,price});
-localStorage.setItem("products", JSON.stringify(products));
-showProducts();
+if(n && p && i){
+data.push({name:n,price:p,img:i});
+localStorage.setItem("data",JSON.stringify(data));
+show();
 }
 }
 
-showProducts();
+function scrollToProducts(){
+window.scrollTo({top:500,behavior:"smooth"});
+}
+
+show();
 </script>
 
 </body>
