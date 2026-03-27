@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel</title>
+</head>
+
+<body style="font-family:sans-serif;padding:20px;">
+
+<h2>Admin Login</h2>
+
+<input id="pass" placeholder="Password">
+<button onclick="login()">Login</button>
+
+<div id="panel" style="display:none;">
+
+<h3>Add Product</h3>
+
+<input id="name" placeholder="Product Name"><br>
+<input id="price" placeholder="Price"><br>
+<input id="img" placeholder="Image URL"><br>
+
+<button onclick="add()">Add Product</button>
+
+<h3>Orders</h3>
+<div id="orders"></div>
+
+</div>
+
+<script>
+function login(){
+if(document.getElementById("pass").value=="1234"){
+document.getElementById("panel").style.display="block";
+}
+}
+
+function add(){
+let data=JSON.parse(localStorage.getItem("products"))||[];
+
+data.push({
+name:document.getElementById("name").value,
+price:document.getElementById("price").value,
+img:document.getElementById("img").value
+});
+
+localStorage.setItem("products",JSON.stringify(data));
+alert("Added");
+}
+
+let orders=JSON.parse(localStorage.getItem("orders"))||[];
+let html="";
+orders.forEach(o=>{
+html+=`<p>${o.product} - ₹${o.price} (${o.name})</p>`;
+});
+document.getElementById("orders").innerHTML=html;
+</script>
+
+</body>
+</html>
