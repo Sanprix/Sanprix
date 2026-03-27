@@ -10,45 +10,8 @@ nav{padding:15px;background:black;color:white;text-align:center;}
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px;}
 .card{background:white;padding:10px;border-radius:10px;text-align:center;}
 img{width:100%;border-radius:10px;}
-button{padding:10px;margin-top:5px;border:none;background:black;color:white;width:100%;}
-.checkout{padding:20px;}
-input{width:100%;padding:10px;margin:5px 0;}
-.admin{background:#ddd;padding:10px;margin:10px;}
+button{padding:10px;margin-top:5px;border:none;background:black;color:white;}
 </style>
-
-<!-- Firebase -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, addDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-const firebaseConfig = {
-apiKey: "YOUR_API_KEY",
-authDomain: "YOUR_DOMAIN",
-projectId: "YOUR_PROJECT_ID"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-window.saveOrder = async function(order){
-await addDoc(collection(db,"orders"), order);
-alert("Order Saved in Database");
-}
-
-window.loadOrders = async function(){
-const querySnapshot = await getDocs(collection(db,"orders"));
-let html="";
-querySnapshot.forEach((doc)=>{
-let d=doc.data();
-html += `<p>₹${d.total} - ${d.name} (${d.phone})</p>`;
-});
-document.getElementById("orders").innerHTML = html;
-}
-</script>
-
-<!-- Razorpay -->
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
 </head>
 
 <body>
@@ -57,106 +20,28 @@ document.getElementById("orders").innerHTML = html;
 
 <div class="grid" id="products"></div>
 
-<div class="checkout">
-<h3>Checkout</h3>
-
-<input id="name" placeholder="Your Name">
-<input id="phone" placeholder="Mobile Number">
-<input id="address" placeholder="Address">
-
-<h3>Total ₹ <span id="total">0</span></h3>
-
-<button onclick="payUPI()">Pay UPI</button>
-<button onclick="payRazor()">Pay Razorpay</button>
-<button onclick="orderWhatsApp()">Order WhatsApp</button>
-</div>
-
-<!-- ADMIN PANEL -->
-<div class="admin">
-<h3>Admin Orders</h3>
-<button onclick="loadOrders()">Load Orders</button>
-<div id="orders"></div>
-</div>
-
 <script>
-let total=0;
-
-let products=[
-{name:"T-shirt",price:499,img:"https://source.unsplash.com/400x400/?tshirt"},
-{name:"Shirt",price:699,img:"https://source.unsplash.com/400x400/?shirt"}
+let data = JSON.parse(localStorage.getItem("products")) || [
+{name:"T-shirt",price:499,img:"https://source.unsplash.com/400x400/?tshirt"}
 ];
 
 function show(){
 let html="";
-products.forEach((p)=>{
+data.forEach((p,i)=>{
 html+=`
 <div class="card">
 <img src="${p.img}">
 <h4>${p.name}</h4>
 <p>₹${p.price}</p>
-<button onclick="add(${p.price})">Add</button>
+<button onclick="buy(${i})">Buy Now</button>
 </div>`;
 });
 document.getElementById("products").innerHTML=html;
 }
 
-function add(p){
-total+=p;
-document.getElementById("total").innerText=total;
-}
-
-function getUser(){
-let name=document.getElementById("name").value;
-let phone=document.getElementById("phone").value;
-let address=document.getElementById("address").value;
-
-if(!name||!phone||!address){
-alert("Fill details");
-return null;
-}
-
-return {name,phone,address};
-}
-
-/* UPI */
-function payUPI(){
-let user=getUser();
-if(!user) return;
-
-window.location.href=`upi://pay?pa=pkchaudhary8585-5@oksbi&pn=Sanprix&am=${total}&cu=INR`;
-
-saveOrder({...user,total});
-}
-
-/* Razorpay */
-function payRazor(){
-let user=getUser();
-if(!user) return;
-
-var options = {
-key: "YOUR_RAZORPAY_KEY",
-amount: total * 100,
-currency: "INR",
-name: "Sanprix",
-handler: function (response) {
-saveOrder({...user,total,payment:response.razorpay_payment_id});
-alert("Payment Success");
-}
-};
-
-var rzp = new Razorpay(options);
-rzp.open();
-}
-
-/* WhatsApp */
-function orderWhatsApp(){
-let user=getUser();
-if(!user) return;
-
-let msg=`Order ₹${total}\n${user.name}\n${user.phone}\n${user.address}`;
-window.open("https://wa.me/919313233801?text="+encodeURIComponent(msg));
-
-saveOrder({...user,total});
+function buy(i){
+localStorage.setItem("buy",JSON.stringify(data[i]));
+window.location.href="checkout.html";
 }
 
 show();
