@@ -1,0 +1,36 @@
+import os
+from moviepy.editor import *
+from gtts import gTTS
+
+def create_ai_video(text_content, output_filename="ai_video.mp4"):
+    print("1. Generating Audio...")
+    # Generate Audio from Text (using Google Text-to-Speech)
+    tts = gTTS(text=text_content, lang='en')
+    audio_filename = "temp_audio.mp3"
+    tts.save(audio_filename)
+
+    print("2. Creating Video...")
+    # Create a simple background (You can replace this with an AI generated image using DALL-E API)
+    # Here we create a black screen for simplicity
+    clip = ColorClip(size=(1080, 1920), color=(0, 0, 0), duration=10)
+    
+    # Add Text Overlay
+    txt_clip = TextClip(text_content, fontsize=50, color='white', size=(1000, None), method='caption')
+    txt_clip = txt_clip.set_pos('center').set_duration(10)
+
+    # Combine Audio and Video
+    final_video = CompositeVideoClip([clip, txt_clip])
+    final_video = final_video.set_audio(AudioFileClip(audio_filename))
+
+    print("3. Rendering Video...")
+    final_video.write_videofile(output_filename, fps=24)
+    
+    # Cleanup
+    if os.path.exists(audio_filename):
+        os.remove(audio_filename)
+    
+    return output_filename
+
+# Example Usage
+video_file = create_ai_video("This is an AI generated video uploaded automatically to YouTube.")
+        
