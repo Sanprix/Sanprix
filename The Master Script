@@ -1,0 +1,20 @@
+import create_video_script  # The script from Part 1
+import upload_script        # The script from Part 2
+
+if __name__ == "__main__":
+    # 1. Define Content
+    topic = "The future of AI in 2025"
+    ai_text = f"Welcome to the channel. Today we are discussing {topic}. Artificial Intelligence is changing the world rapidly."
+    
+    # 2. Generate Video
+    print("--- Starting AI Video Generation ---")
+    video_path = create_video_script.create_ai_video(ai_text)
+    
+    # 3. Upload to YouTube
+    print("--- Starting YouTube Upload ---")
+    upload_script.upload_video(
+        video_file=video_path,
+        title=f"AI Generated: {topic}",
+        description=f"Watch this video generated entirely by AI. #{' '.join(topic.split())}",
+        tags=["AI", "Automation", "Tech", topic.replace(" ", "")]
+    )
